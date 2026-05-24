@@ -96,7 +96,7 @@ export default function Header() {
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="md:hidden glass absolute top-20 left-0 right-0 border-t border-white/20 p-4"
+          className="md:hidden bg-white shadow-xl absolute top-20 left-0 right-0 border-t border-black/5 p-4"
         >
           <div className="flex flex-col gap-4">
             <Link href="#como-funciona" onClick={() => setIsOpen(false)} className="px-4 py-2 hover:bg-white/50 rounded-lg">Como Funciona</Link>
