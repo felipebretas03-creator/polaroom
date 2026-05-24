@@ -257,7 +257,7 @@ export default function EditorPage() {
     <div className="min-h-screen bg-muted/20 flex flex-col">
       <Header />
       
-      <main className="flex-1 pt-20 flex flex-col md:flex-row h-[calc(100vh)]">
+      <main className="flex-1 pt-20 flex flex-col-reverse md:flex-row md:h-[calc(100vh)]">
         {/* Left Sidebar - Controls */}
         <div className="w-full md:w-80 bg-white border-r border-black/5 p-6 flex flex-col gap-6 overflow-y-auto">
           <div>
