@@ -13,7 +13,7 @@ const ADMIN_EMAIL = "felipebretas03@gmail.com"
 export default function AdminPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(true)
-  const [activeTab, setActiveTab] = useState("molduras")
+  const [activeTab, setActiveTab] = useState('dashboard')
   const [user, setUser] = useState<any>(null)
   
   const [templates, setTemplates] = useState<any[]>([])
@@ -43,6 +43,19 @@ export default function AdminPage() {
     }
     setUser(session.user)
     fetchTemplates()
+    
+    // Fetch orders immediately to calculate dashboard metrics
+    const fetchAllOrders = async () => {
+      try {
+        const res = await fetch(`/api/admin/orders?email=${session.user.email}`)
+        const data = await res.json()
+        if (data.orders) setOrders(data.orders)
+      } catch (e) {
+        console.error("Failed to fetch orders", e)
+      }
+    }
+    fetchAllOrders()
+    
     setLoading(false)
   }
 
@@ -64,10 +77,42 @@ export default function AdminPage() {
   }
 
   useEffect(() => {
-    if (activeTab === 'pedidos' && orders.length === 0) {
+    if (activeTab === 'pedidos' && orders.length === 0 && user) {
       fetchOrders()
     }
-  }, [activeTab])
+  }, [activeTab, user])
+
+  const calculateOrderTotal = (order: any) => {
+    let totalPrice = 0;
+    const grandesCount = order.grandes_count || 0;
+    const minisCount = order.minis_count || 0;
+    
+    if (order.delivery_method === 'printed') {
+      const kitsGrande = Math.max(0, Math.ceil(grandesCount / 8));
+      const kitsMini = Math.max(0, Math.ceil(minisCount / 12));
+      const totalKits = kitsGrande + kitsMini;
+      const printedPrice = totalKits > 0 ? 19.90 + Math.max(0, totalKits - 3) * 3.00 : 0;
+      totalPrice = printedPrice > 0 ? printedPrice + 15.90 : 0;
+    } else {
+      const extraGrandes = Math.max(0, grandesCount - 8);
+      if (grandesCount > 0) totalPrice += 7.50 + (extraGrandes * 0.75);
+      
+      const extraMinis = Math.max(0, minisCount - 12);
+      if (minisCount > 0) totalPrice += 5.00 + (extraMinis * 0.50);
+    }
+    return totalPrice;
+  }
+
+  const totalVendido = orders
+    .filter(o => o.status === 'paid' || o.status === 'shipped')
+    .reduce((acc, order) => acc + calculateOrderTotal(order), 0);
+
+  const totalPedidos = orders.filter(o => o.status === 'paid' || o.status === 'shipped').length;
+
+  const faltaReceber = orders
+    .filter(o => o.status === 'pending_payment')
+    .reduce((acc, order) => acc + calculateOrderTotal(order), 0);
+
 
   const markAsShipped = async (orderId: string) => {
     const { error } = await supabase.from('orders').update({ status: 'shipped' }).eq('id', orderId)
@@ -204,6 +249,13 @@ export default function AdminPage() {
         </div>
         <nav className="flex-1 p-4 space-y-2">
           <button 
+            onClick={() => setActiveTab('dashboard')}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg font-medium text-sm transition-colors ${activeTab === 'dashboard' ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-zinc-50'}`}
+          >
+            <Settings className="w-5 h-5" />
+            Visão Geral
+          </button>
+          <button 
             onClick={() => setActiveTab('molduras')}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg font-medium text-sm transition-colors ${activeTab === 'molduras' ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-zinc-50'}`}
           >
@@ -216,13 +268,6 @@ export default function AdminPage() {
           >
             <Package className="w-5 h-5" />
             Pedidos
-          </button>
-          <button 
-            onClick={() => setActiveTab('config')}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg font-medium text-sm transition-colors ${activeTab === 'config' ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-zinc-50'}`}
-          >
-            <Settings className="w-5 h-5" />
-            Configurações
           </button>
         </nav>
         <div className="p-4 border-t border-border">
@@ -489,6 +534,32 @@ export default function AdminPage() {
                     )}
                   </tbody>
                 </table>
+              </div>
+            </div>
+          )}
+          
+          {activeTab === 'dashboard' && (
+            <div className="space-y-8">
+              <div>
+                <h3 className="text-xl font-serif font-bold text-primary mb-2">Visão Geral</h3>
+                <p className="text-muted-foreground text-sm">Acompanhe as métricas e o desempenho da sua loja.</p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="bg-white p-6 rounded-2xl border border-black/5 shadow-sm">
+                  <div className="text-sm font-medium text-muted-foreground mb-2">Total Vendido</div>
+                  <div className="text-3xl font-bold text-primary">R$ {totalVendido.toFixed(2).replace('.', ',')}</div>
+                </div>
+                
+                <div className="bg-white p-6 rounded-2xl border border-black/5 shadow-sm">
+                  <div className="text-sm font-medium text-muted-foreground mb-2">Pedidos Realizados</div>
+                  <div className="text-3xl font-bold text-primary">{totalPedidos}</div>
+                </div>
+
+                <div className="bg-white p-6 rounded-2xl border border-black/5 shadow-sm">
+                  <div className="text-sm font-medium text-muted-foreground mb-2">Falta Receber (Pendentes)</div>
+                  <div className="text-3xl font-bold text-orange-500">R$ {faltaReceber.toFixed(2).replace('.', ',')}</div>
+                </div>
               </div>
             </div>
           )}
