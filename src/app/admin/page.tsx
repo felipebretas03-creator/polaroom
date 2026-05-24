@@ -53,8 +53,13 @@ export default function AdminPage() {
 
   const fetchOrders = async () => {
     setIsLoadingOrders(true)
-    const { data, error } = await supabase.from('orders').select('*').order('created_at', { ascending: false })
-    if (data) setOrders(data)
+    try {
+      const res = await fetch(`/api/admin/orders?email=${user?.email}`)
+      const data = await res.json()
+      if (data.orders) setOrders(data.orders)
+    } catch (e) {
+      console.error("Failed to fetch orders", e)
+    }
     setIsLoadingOrders(false)
   }
 
