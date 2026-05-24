@@ -484,19 +484,19 @@ export default function EditorPage() {
             </div>
           ) : (
             <div className="max-w-7xl mx-auto">
-              <div className="flex justify-between items-end mb-8">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mb-8">
                 <div>
                   <h2 className="text-2xl font-serif font-bold">Suas Polaroids</h2>
                   <p className="text-muted-foreground">{grandesCount} Grandes, {minisCount} Minis</p>
                 </div>
-                <div className="flex gap-2">
-                  <Button variant="outline" onClick={() => setImages([])}>
+                <div className="flex flex-wrap gap-2">
+                  <Button variant="outline" onClick={() => setImages([])} className="flex-1 sm:flex-none">
                     Refazer Tudo
                   </Button>
-                  <Button onClick={() => handleUploadClick("grande")}>
+                  <Button onClick={() => handleUploadClick("grande")} className="flex-1 sm:flex-none">
                     + Grandes
                   </Button>
-                  <Button variant="secondary" onClick={() => handleUploadClick("mini")}>
+                  <Button variant="secondary" onClick={() => handleUploadClick("mini")} className="flex-1 sm:flex-none">
                     + Minis
                   </Button>
                 </div>
