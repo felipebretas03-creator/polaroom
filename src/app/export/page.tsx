@@ -41,7 +41,7 @@ function ExportContent() {
           // Fallback para admin (fura o bloqueio do RLS)
           const { data: { session } } = await supabase.auth.getSession();
           if (session?.user?.email === process.env.NEXT_PUBLIC_ADMIN_EMAIL) {
-            const res = await fetch(`/api/admin/orders?email=${session.user.email}`);
+            const res = await fetch(`/api/admin/orders?email=${session?.user?.email}`);
             const adminData = await res.json();
             order = adminData.orders?.find((o: any) => o.id === orderId);
           }
