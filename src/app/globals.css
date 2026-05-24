@@ -55,12 +55,7 @@
   --foreground: #171717;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #09090b;
-    --foreground: #fafafa;
-  }
-}
+/* Dark mode desativado para manter o padrão light do site */
 
 body {
   background: var(--background);
