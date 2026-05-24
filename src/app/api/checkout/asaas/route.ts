@@ -86,7 +86,11 @@ export async function POST(req: Request) {
         value: totalPrice,
         dueDate: dueDate.toISOString().split('T')[0],
         description: `Pedido #${orderId} - Entrega: ${deliveryMethod === 'printed' ? 'Impresso' : 'Digital'} (${grandesCount} Grandes, ${minisCount} Minis)`,
-        externalReference: orderId
+        externalReference: orderId,
+        callback: {
+          successUrl: 'https://polaroom-seven.vercel.app/sucesso',
+          autoRedirect: true
+        }
       })
     });
 
