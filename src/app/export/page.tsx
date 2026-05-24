@@ -28,13 +28,26 @@ function ExportContent() {
     const generatePDF = async () => {
       try {
         setStatus("Buscando dados do pedido...")
-        const { data: order, error: orderError } = await supabase
+        let order = null;
+        const { data: directData, error: orderError } = await supabase
           .from('orders')
           .select('*')
           .eq('id', orderId)
           .single()
 
-        if (orderError || !order) throw new Error("Pedido não encontrado.")
+        if (directData) {
+          order = directData;
+        } else {
+          // Fallback para admin (fura o bloqueio do RLS)
+          const { data: { session } } = await supabase.auth.getSession();
+          if (session?.user?.email === process.env.NEXT_PUBLIC_ADMIN_EMAIL) {
+            const res = await fetch(`/api/admin/orders?email=${session.user.email}`);
+            const adminData = await res.json();
+            order = adminData.orders?.find((o: any) => o.id === orderId);
+          }
+        }
+
+        if (!order) throw new Error("Pedido não encontrado.")
 
         setStatus("Buscando catálogo de molduras...")
         const { data: dbTemplates, error: templatesError } = await supabase.from('templates').select('*')
