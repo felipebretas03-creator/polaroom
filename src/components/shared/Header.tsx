@@ -70,13 +70,8 @@ export default function Header() {
             ) : (
               <>
                 <Link href="/login">
-                  <Button variant="ghost" className="font-medium text-muted-foreground hover:text-foreground">
-                    Entrar
-                  </Button>
-                </Link>
-                <Link href="/signup">
                   <Button className="shadow-premium rounded-full px-6">
-                    Começar
+                    Entrar
                   </Button>
                 </Link>
               </>
@@ -111,9 +106,8 @@ export default function Header() {
               </>
             ) : (
               <>
-                <Link href="/login" onClick={() => setIsOpen(false)} className="px-4 py-2 hover:bg-white/50 rounded-lg">Entrar</Link>
-                <Link href="/signup" onClick={() => setIsOpen(false)}>
-                  <Button className="w-full">Começar</Button>
+                <Link href="/login" onClick={() => setIsOpen(false)}>
+                  <Button className="w-full">Entrar</Button>
                 </Link>
               </>
             )}
