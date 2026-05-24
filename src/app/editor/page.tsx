@@ -211,7 +211,8 @@ export default function EditorPage() {
           delivery_method: deliveryMethod,
           shipping_address: shippingAddress,
           grandes_count: grandesCount,
-          minis_count: minisCount
+          minis_count: minisCount,
+          size: grandesCount > 0 ? 'grande' : 'mini'
         })
         .select()
         .single();
